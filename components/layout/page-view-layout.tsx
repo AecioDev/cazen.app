@@ -10,6 +10,7 @@ interface PageViewLayoutProps {
   children: React.ReactNode;
   bgImage?: string;
   subtitle?: string;
+  showBackButton?: boolean;
 }
 
 export function PageViewLayout({
@@ -17,6 +18,7 @@ export function PageViewLayout({
   children,
   bgImage,
   subtitle,
+  showBackButton = true,
 }: PageViewLayoutProps) {
   const router = useRouter();
 
@@ -44,13 +46,15 @@ export function PageViewLayout({
         )}
 
         {/* Botão de Voltar com z-index maior */}
-        <div className="relative z-20 flex-shrink-0 p-4">
-          <Icon
-            icon="mdi:arrow-left"
-            onClick={handleGoBack}
-            className="h-6 w-6 cursor-pointer transition-opacity hover:opacity-80"
-          />
-        </div>
+        {showBackButton && (
+          <div className="relative z-20 flex-shrink-0 p-4">
+            <Icon
+              icon="mdi:arrow-left"
+              onClick={handleGoBack}
+              className="h-6 w-6 cursor-pointer transition-opacity hover:opacity-80"
+            />
+          </div>
+        )}
 
         {/* Título e Subtítulo */}
         <div className="relative z-10 flex flex-grow flex-col items-center justify-center -mt-14 text-center">

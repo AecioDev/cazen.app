@@ -1,4 +1,4 @@
-// components/auth/form/LoginForm.tsx
+// components/auth/forms/login-form.tsx
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -16,7 +16,8 @@ import { Button } from "@/components/ui/button";
 import { loginSchema, type LoginFormData } from "@/schemas/login-schema";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react"; // Importamos o signIn do next-auth
+import { signIn } from "next-auth/react";
+import Link from "next/link";
 
 export function LoginForm() {
   const router = useRouter();
@@ -37,7 +38,7 @@ export function LoginForm() {
 
     try {
       const result = await signIn("credentials", {
-        redirect: false, // Importante: para a gente controlar o fluxo
+        redirect: false,
         email: values.email,
         password: values.password,
       });
@@ -46,7 +47,6 @@ export function LoginForm() {
         throw new Error("Credenciais inválidas. Verifique seu e-mail e senha.");
       }
 
-      // Sucesso! O next-auth vai cuidar da sessão. Redirecionamos para o dashboard.
       router.push("/dashboard");
     } catch (err: any) {
       setError(err.message);
@@ -71,6 +71,7 @@ export function LoginForm() {
               <FormLabel>Email</FormLabel>
               <FormControl>
                 <Input
+                  className="bg-card"
                   type="email"
                   placeholder="seu@email.com"
                   {...field}
@@ -89,12 +90,21 @@ export function LoginForm() {
               <FormLabel>Senha</FormLabel>
               <FormControl>
                 <Input
+                  className="bg-card"
                   type="password"
                   placeholder="******"
                   {...field}
                   disabled={isLoading}
                 />
               </FormControl>
+              <div className="flex justify-end pt-1 text-xs">
+                <Link
+                  href="/forgot-password"
+                  className="text-muted-foreground hover:text-primary hover:underline"
+                >
+                  Esqueceu sua senha?
+                </Link>
+              </div>
               <FormMessage />
             </FormItem>
           )}

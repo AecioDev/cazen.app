@@ -1,0 +1,22 @@
+{
+  "name": "CaZen - Planejamento de Casamento",
+  "short_name": "CaZen",
+  "description": "Planeje seu casamento com calma e sem estresse.",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#92ac8c",
+  "background_color": "#fcfcfd",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait"
+}

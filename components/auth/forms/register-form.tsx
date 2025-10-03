@@ -1,4 +1,4 @@
-// components/auth/register-form.tsx
+// components/auth/forms/register-form.tsx
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -19,11 +19,11 @@ import {
 } from "@/schemas/register-schema";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export function RegisterForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -37,7 +37,6 @@ export function RegisterForm() {
 
   async function onSubmit(values: RegisterFormData) {
     setIsLoading(true);
-    setError(null);
 
     try {
       const response = await fetch("/api/auth/register", {
@@ -46,15 +45,23 @@ export function RegisterForm() {
         body: JSON.stringify(values),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || "Falha ao registrar.");
+        throw new Error(data.message || "Falha ao registrar. Tente novamente.");
       }
 
-      // Sucesso! Redireciona para a página de login.
-      router.push("/login");
+      toast.success("Conta criada com sucesso!", {
+        description: "Você será redirecionado para a tela de login.",
+      });
+
+      setTimeout(() => {
+        router.push("/login");
+      }, 2000);
     } catch (err: any) {
-      setError(err.message);
+      toast.error("Ops! Algo deu errado.", {
+        description: err.message,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -63,11 +70,6 @@ export function RegisterForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        {error && (
-          <div className="text-destructive text-sm font-medium p-2 bg-destructive/10 rounded-md">
-            {error}
-          </div>
-        )}
         <FormField
           control={form.control}
           name="name"
@@ -75,7 +77,12 @@ export function RegisterForm() {
             <FormItem>
               <FormLabel>Nome Completo</FormLabel>
               <FormControl>
-                <Input placeholder="Seu nome" {...field} />
+                <Input
+                  className="bg-card"
+                  placeholder="Seu nome"
+                  {...field}
+                  disabled={isLoading}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -88,7 +95,12 @@ export function RegisterForm() {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="seu@email.com" {...field} />
+                <Input
+                  className="bg-card"
+                  placeholder="seu@email.com"
+                  {...field}
+                  disabled={isLoading}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -101,7 +113,13 @@ export function RegisterForm() {
             <FormItem>
               <FormLabel>Senha</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="******" {...field} />
+                <Input
+                  className="bg-card"
+                  type="password"
+                  placeholder="******"
+                  {...field}
+                  disabled={isLoading}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -114,7 +132,13 @@ export function RegisterForm() {
             <FormItem>
               <FormLabel>Confirmar Senha</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="******" {...field} />
+                <Input
+                  className="bg-card"
+                  type="password"
+                  placeholder="******"
+                  {...field}
+                  disabled={isLoading}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
