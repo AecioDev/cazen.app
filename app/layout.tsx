@@ -9,6 +9,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { AuthGuard } from "@/components/auth/auth-guard";
 import { MainLayout } from "@/components/layout/main-layout";
+import { WeddingProvider } from "@/components/providers/wedding-provider";
 
 export const metadata: Metadata = {
   title: "CaZen",
@@ -31,7 +32,9 @@ export default function RootLayout({
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <div className="relative mx-auto flex min-h-screen w-full max-w-4xl flex-col bg-background">
               <AuthGuard>
-                <MainLayout>{children}</MainLayout>
+                <WeddingProvider>
+                  <MainLayout>{children}</MainLayout>
+                </WeddingProvider>
               </AuthGuard>
             </div>
           </ThemeProvider>

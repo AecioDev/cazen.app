@@ -79,7 +79,19 @@ model Wedding {
     // budgetItems BudgetItem[]
     // vendors     Vendor[]
     // guests      Guest[]
-    // tasks       Task[]
+    tasks Task[]
 }
 
 // A gente vai criar os outros models (BudgetItem, Vendor, etc.) depois
+model Task {
+    id        String    @id @default(cuid())
+    title     String
+    completed Boolean   @default(false)
+    dueDate   DateTime?
+    notes     String?
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+
+    weddingId String
+    wedding   Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+}
