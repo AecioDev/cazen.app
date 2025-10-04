@@ -1,11 +1,7 @@
 // app/page.tsx
-import { redirect } from "next/navigation";
 
+// Esta página é apenas um ponto de entrada para o AuthGuard.
+// Ela não renderiza nada, pois o AuthGuard sempre redirecionará o usuário.
 export default function HomePage() {
-  // Por enquanto, a página inicial apenas redireciona para o login.
-  // No futuro, aqui entrará nosso AuthGuard para redirecionar para o dashboard se o usuário já estiver logado.
-  redirect("/login");
-
-  // Você pode retornar um loader simples aqui, embora o redirect seja quase instantâneo.
   return null;
 }
