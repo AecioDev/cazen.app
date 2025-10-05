@@ -77,9 +77,9 @@ model Wedding {
 
     // Adicione outras relações aqui no futuro
     // budgetItems BudgetItem[]
-    // vendors     Vendor[]
+    vendors Vendor[]
     // guests      Guest[]
-    tasks Task[]
+    tasks   Task[]
 }
 
 // A gente vai criar os outros models (BudgetItem, Vendor, etc.) depois
@@ -91,6 +91,23 @@ model Task {
     notes     String?
     createdAt DateTime  @default(now())
     updatedAt DateTime  @updatedAt
+
+    weddingId String
+    wedding   Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+}
+
+model Vendor {
+    id          String   @id @default(cuid())
+    name        String
+    category    String
+    contactName String?
+    phone       String?
+    email       String?
+    cost        Float    @default(0)
+    paid        Boolean  @default(false)
+    notes       String?
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
 
     weddingId String
     wedding   Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)

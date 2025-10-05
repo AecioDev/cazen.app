@@ -1,25 +1,28 @@
 // app/dashboard/page.tsx
+"use client";
 
+import { useWedding } from "@/components/providers/wedding-provider";
 import { BudgetSummaryCard } from "@/components/dashboard/budget-summary-card";
 import { TaskListWidget } from "@/components/dashboard/task-list-widget";
 import { WeddingCountdown } from "@/components/dashboard/wedding-countdown";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
+import { SetupWeddingPage } from "@/components/dashboard/setup-wedding-page"; // <-- IMPORTE AQUI
 
 export default function DashboardPage() {
-  // Dados mocados (substituiremos por dados reais do banco no futuro)
-  const weddingDate = new Date("2025-10-25T17:00:00");
-  const budget = { total: 50000, spent: 15000 };
-  const tasks = [
-    { id: "1", title: "Definir lista de convidados", completed: false },
-    { id: "2", title: "Contratar cerimonial", completed: true },
-    { id: "3", title: "Enviar Save the Date", completed: false },
-  ];
+  const { wedding, tasks } = useWedding();
+
+  // Se o usuário ainda não configurou o casamento, mostra a página de setup
+  if (!wedding) {
+    return <SetupWeddingPage />;
+  }
+
+  // TODO: A lógica de 'spent' virá do módulo de orçamento no futuro.
+  const budgetInfo = { total: wedding.budget || 0, spent: 0 };
 
   return (
     <div className="flex flex-col gap-6 p-4">
-      {/* Seção de Boas-vindas */}
       <div className="text-center">
         <h1 className="text-2xl font-bold text-primary">Olá, Casal!</h1>
         <p className="text-muted-foreground">
@@ -27,12 +30,10 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      {/* Componentes Principais */}
-      <WeddingCountdown date={weddingDate} />
-      <BudgetSummaryCard budget={budget.total} spent={budget.spent} />
+      <WeddingCountdown date={new Date(wedding.date)} />
+      <BudgetSummaryCard budget={budgetInfo.total} spent={budgetInfo.spent} />
       <TaskListWidget tasks={tasks} />
 
-      {/* Seção de Atalhos Rápidos */}
       <div className="grid grid-cols-2 gap-4 pt-4">
         <Link href="/guests" passHref>
           <Button

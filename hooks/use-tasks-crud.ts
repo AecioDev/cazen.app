@@ -3,14 +3,18 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { Task } from "@/interfaces/wedding";
+import { Task, Wedding } from "@/interfaces/wedding";
+
+type FullWedding = Wedding & {
+  tasks: Task[];
+};
 
 // As funções do hook receberão o 'setter' do estado principal do Provider
 type TaskCrudProps = {
-  setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
+  setWedding: React.Dispatch<React.SetStateAction<FullWedding | null>>;
 };
 
-export function useTasksCrud({ setTasks }: TaskCrudProps) {
+export function useTasksCrud({ setWedding }: TaskCrudProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   // --- FUNÇÃO DE CRIAR TAREFA ---
@@ -28,7 +32,9 @@ export function useTasksCrud({ setTasks }: TaskCrudProps) {
       if (!response.ok) throw new Error("Falha ao criar a tarefa.");
 
       const newTask = await response.json();
-      setTasks((prev) => [...prev, newTask]); // Adiciona a nova tarefa ao estado local
+      setWedding((prev) =>
+        prev ? { ...prev, tasks: [...prev.tasks, newTask] } : null
+      );
       toast.success("Tarefa criada com sucesso!");
     } catch (error: any) {
       toast.error("Erro ao criar tarefa", { description: error.message });
@@ -53,8 +59,15 @@ export function useTasksCrud({ setTasks }: TaskCrudProps) {
       if (!response.ok) throw new Error("Falha ao atualizar a tarefa.");
 
       const updatedTask = await response.json();
-      setTasks((prev) =>
-        prev.map((task) => (task.id === taskId ? updatedTask : task))
+      setWedding((prev) =>
+        prev
+          ? {
+              ...prev,
+              tasks: prev.tasks.map((task) =>
+                task.id === taskId ? updatedTask : task
+              ),
+            }
+          : null
       );
       toast.success("Tarefa atualizada!");
     } catch (error: any) {
@@ -74,7 +87,11 @@ export function useTasksCrud({ setTasks }: TaskCrudProps) {
 
       if (!response.ok) throw new Error("Falha ao deletar a tarefa.");
 
-      setTasks((prev) => prev.filter((task) => task.id !== taskId));
+      setWedding((prev) =>
+        prev
+          ? { ...prev, tasks: prev.tasks.filter((task) => task.id !== taskId) }
+          : null
+      );
       toast.success("Tarefa deletada com sucesso!");
     } catch (error: any) {
       toast.error("Erro ao deletar tarefa", { description: error.message });

@@ -9,13 +9,22 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-import { Task } from "@/interfaces/wedding";
+import { Task, Vendor, Wedding } from "@/interfaces/wedding";
 import { useTasksCrud } from "@/hooks/use-tasks-crud";
 import { AppLoader } from "../layout/app-loader";
 import { toast } from "sonner";
+import { useVendorsCrud } from "@/hooks/use-vendors-crud"; // <-- 1. Importe o novo hook
 
-// Tipagem para o contexto
+// Agora nosso tipo completo inclui tarefas e fornecedores
+type FullWedding = Wedding & {
+  tasks: Task[];
+  vendors: Vendor[];
+};
+
 interface WeddingContextType {
+  wedding: FullWedding | null;
+  setWedding: React.Dispatch<React.SetStateAction<FullWedding | null>>;
+  // Funções de Tarefas
   tasks: Task[];
   createTask: (
     taskData: Omit<Task, "id" | "completed" | "createdAt" | "updatedAt">
@@ -26,6 +35,17 @@ interface WeddingContextType {
   ) => Promise<void>;
   deleteTask: (taskId: string) => Promise<void>;
   isLoadingTasks: boolean;
+  // Funções de Fornecedores
+  vendors: Vendor[];
+  createVendor: (
+    vendorData: Omit<Vendor, "id" | "createdAt" | "updatedAt">
+  ) => Promise<void>;
+  updateVendor: (
+    vendorId: string,
+    vendorData: Partial<Omit<Vendor, "id">>
+  ) => Promise<void>;
+  deleteVendor: (vendorId: string) => Promise<void>;
+  isLoadingVendors: boolean;
 }
 
 const WeddingContext = createContext<WeddingContextType | null>(null);
@@ -39,29 +59,33 @@ export const useWedding = () => {
 };
 
 export function WeddingProvider({ children }: { children: ReactNode }) {
-  const { data: session, status } = useSession();
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const { status } = useSession();
+  const [wedding, setWedding] = useState<FullWedding | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Inicializa o nosso hook de CRUD
+  // Inicializa ambos os hooks
   const {
     createTask,
     updateTask,
     deleteTask,
-    isLoading: isLoadingCrud,
-  } = useTasksCrud({ setTasks });
+    isLoading: isLoadingTasks,
+  } = useTasksCrud({ setWedding });
+  const {
+    createVendor,
+    updateVendor,
+    deleteVendor,
+    isLoading: isLoadingVendors,
+  } = useVendorsCrud({ setWedding }); // <-- 2. Use o novo hook
 
   useEffect(() => {
-    // Busca os dados iniciais apenas se o usuário estiver autenticado
     if (status === "authenticated") {
       const fetchInitialData = async () => {
         setIsLoading(true);
         try {
-          // Futuramente, podemos buscar todos os dados (fornecedores, orçamento) aqui
-          const tasksResponse = await fetch("/api/tasks");
-          if (!tasksResponse.ok) throw new Error("Falha ao buscar tarefas.");
-          const tasksData = await tasksResponse.json();
-          setTasks(tasksData);
+          const response = await fetch("/api/wedding"); // A API já busca tudo
+          if (!response.ok) throw new Error("Falha ao buscar dados.");
+          const data = await response.json();
+          setWedding(data);
         } catch (error) {
           console.error("Erro ao buscar dados iniciais:", error);
           toast.error("Não foi possível carregar os dados do seu casamento.");
@@ -71,23 +95,30 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
       };
       fetchInitialData();
     } else if (status === "unauthenticated") {
-      // Se deslogado, limpa os dados e para de carregar
       setIsLoading(false);
-      setTasks([]);
+      setWedding(null);
     }
   }, [status]);
 
-  // Enquanto busca os dados iniciais, exibe um loader
   if (isLoading) {
     return <AppLoader message="Carregando dados do seu casamento..." />;
   }
 
   const value = {
-    tasks,
+    wedding,
+    setWedding,
+    // Tarefas
+    tasks: wedding?.tasks || [],
     createTask,
     updateTask,
     deleteTask,
-    isLoadingTasks: isLoadingCrud,
+    isLoadingTasks,
+    // Fornecedores
+    vendors: wedding?.vendors || [], // <-- 3. Adicione os vendors ao contexto
+    createVendor,
+    updateVendor,
+    deleteVendor,
+    isLoadingVendors,
   };
 
   return (
