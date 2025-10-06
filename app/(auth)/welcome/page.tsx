@@ -11,8 +11,8 @@ export default function WelcomePage() {
   const handleContinue = () => {
     // Marca no localStorage que o usuário já viu a tela de boas-vindas
     localStorage.setItem("cazen_has_seen_welcome", "true");
-    // Redireciona para o LOGIN
-    router.push("/login");
+    // Redireciona para o REGISTRO
+    router.push("/register");
   };
 
   return (
