@@ -21,8 +21,17 @@ export async function PATCH(
   try {
     const { vendorId } = params;
     const body = await request.json();
-    const { name, category, contactName, phone, email, cost, paid, notes } =
-      body;
+    const {
+      name,
+      category,
+      rating,
+      contactName,
+      phone,
+      email,
+      cost,
+      paid,
+      notes,
+    } = body;
 
     // Medida de segurança: Confirma que o fornecedor a ser atualizado
     // pertence de fato ao casamento do usuário logado.
@@ -48,6 +57,7 @@ export async function PATCH(
       data: {
         name,
         category,
+        rating,
         contactName,
         phone,
         email,

@@ -21,9 +21,10 @@ export async function GET() {
       where: { userId: session.user.id },
       include: {
         vendors: {
-          orderBy: {
-            category: "asc", // Ordena por categoria para agrupar visualmente
-          },
+          orderBy: [
+            { category: "asc" }, // Primeiro, ordena por categoria
+            { rating: "desc" }, // Depois, pela maior classificação
+          ],
         },
       },
     });
@@ -50,7 +51,8 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     // Desestruturamos todos os campos que definimos no schema
-    const { name, category, contactName, phone, email, cost, notes } = body;
+    const { name, category, rating, contactName, phone, email, cost, notes } =
+      body;
 
     if (!name || !category) {
       return new NextResponse("Nome e categoria são obrigatórios", {
@@ -72,6 +74,7 @@ export async function POST(request: Request) {
         weddingId: wedding.id,
         name,
         category,
+        rating: rating || 0,
         contactName,
         phone,
         email,
