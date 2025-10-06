@@ -92,3 +92,44 @@ export async function POST(request: Request) {
     return new NextResponse("Erro interno do servidor", { status: 500 });
   }
 }
+
+// PATCH: Atualizar os dados do casamento (data e orçamento)
+export async function PATCH(request: Request) {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.id) {
+    return new NextResponse("Não autorizado", { status: 401 });
+  }
+
+  try {
+    const body = await request.json();
+    const { date, budget } = body;
+
+    const wedding = await prisma.wedding.findUnique({
+      where: { userId: session.user.id },
+    });
+
+    if (!wedding) {
+      return new NextResponse("Casamento não encontrado", { status: 404 });
+    }
+
+    const updatedWedding = await prisma.wedding.update({
+      where: {
+        id: wedding.id,
+      },
+      data: {
+        date: date ? new Date(date) : undefined,
+        budget: budget,
+      },
+      include: {
+        tasks: true,
+        vendors: true,
+      },
+    });
+
+    return NextResponse.json(updatedWedding);
+  } catch (error) {
+    console.error("[WEDDING_PATCH]", error);
+    return new NextResponse("Erro interno do servidor", { status: 500 });
+  }
+}

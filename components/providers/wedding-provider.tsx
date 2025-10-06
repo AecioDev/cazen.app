@@ -13,9 +13,9 @@ import { Task, Vendor, Wedding } from "@/interfaces/wedding";
 import { useTasksCrud } from "@/hooks/use-tasks-crud";
 import { AppLoader } from "../layout/app-loader";
 import { toast } from "sonner";
-import { useVendorsCrud } from "@/hooks/use-vendors-crud"; // <-- 1. Importe o novo hook
+import { useVendorsCrud } from "@/hooks/use-vendors-crud";
+import { useWeddingCrud } from "@/hooks/use-wedding-crud"; // <-- 1. Importe o novo hook
 
-// Agora nosso tipo completo inclui tarefas e fornecedores
 type FullWedding = Wedding & {
   tasks: Task[];
   vendors: Vendor[];
@@ -24,6 +24,11 @@ type FullWedding = Wedding & {
 interface WeddingContextType {
   wedding: FullWedding | null;
   setWedding: React.Dispatch<React.SetStateAction<FullWedding | null>>;
+  // Função do Casamento
+  updateWedding: (
+    weddingData: Partial<{ date: Date; budget: number }>
+  ) => Promise<FullWedding | undefined>;
+  isLoadingWedding: boolean;
   // Funções de Tarefas
   tasks: Task[];
   createTask: (
@@ -63,7 +68,10 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
   const [wedding, setWedding] = useState<FullWedding | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Inicializa ambos os hooks
+  // Inicializa todos os hooks de CRUD
+  const { updateWedding, isLoading: isLoadingWedding } = useWeddingCrud({
+    setWedding,
+  }); // <-- 2. Use o novo hook
   const {
     createTask,
     updateTask,
@@ -75,14 +83,14 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
     updateVendor,
     deleteVendor,
     isLoading: isLoadingVendors,
-  } = useVendorsCrud({ setWedding }); // <-- 2. Use o novo hook
+  } = useVendorsCrud({ setWedding });
 
   useEffect(() => {
     if (status === "authenticated") {
       const fetchInitialData = async () => {
         setIsLoading(true);
         try {
-          const response = await fetch("/api/wedding"); // A API já busca tudo
+          const response = await fetch("/api/wedding");
           if (!response.ok) throw new Error("Falha ao buscar dados.");
           const data = await response.json();
           setWedding(data);
@@ -107,6 +115,9 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
   const value = {
     wedding,
     setWedding,
+    // Casamento
+    updateWedding,
+    isLoadingWedding,
     // Tarefas
     tasks: wedding?.tasks || [],
     createTask,
@@ -114,7 +125,7 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
     deleteTask,
     isLoadingTasks,
     // Fornecedores
-    vendors: wedding?.vendors || [], // <-- 3. Adicione os vendors ao contexto
+    vendors: wedding?.vendors || [],
     createVendor,
     updateVendor,
     deleteVendor,

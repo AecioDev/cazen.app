@@ -1,13 +1,21 @@
-import { z } from "zod"
+// schemas/vendor-schema.ts
+import { z } from "zod";
 
 export const vendorSchema = z.object({
-  name: z.string().min(1, "Nome é obrigatório"),
-  category: z.string().min(1, "Categoria é obrigatória"),
-  contact: z.string().min(1, "Contato é obrigatório"),
-  email: z.string().email("Email inválido").optional(),
+  name: z.string().min(3, { message: "O nome do fornecedor é obrigatório." }),
+  category: z.string().min(1, { message: "Selecione uma categoria." }),
+  contactName: z.string().optional(),
   phone: z.string().optional(),
-  cost: z.number().min(0, "Custo deve ser positivo"),
-  paid: z.boolean().default(false),
-})
+  email: z
+    .string()
+    .email({ message: "Por favor, insira um e-mail válido." })
+    .optional()
+    .or(z.literal("")),
+  cost: z
+    .number({ invalid_type_error: "O custo deve ser um número." })
+    .min(0, "O custo não pode ser um valor negativo.")
+    .default(0),
+  notes: z.string().optional(),
+});
 
-export type VendorFormData = z.infer<typeof vendorSchema>
+export type VendorFormData = z.infer<typeof vendorSchema>;

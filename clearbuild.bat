@@ -32,6 +32,18 @@ if exist ".next" (
 )
 
 echo ===============================
+echo       Reinstalando Pacotes!
+echo ===============================
+
+pnpm install
+
+echo ===============================
+echo       Gerando Estrutura do Prisma!
+echo ===============================
+
+pnpm exec prisma generate
+
+echo ===============================
 echo       Operacao concluida!
 echo ===============================
 pause

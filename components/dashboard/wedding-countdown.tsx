@@ -38,7 +38,7 @@ export function WeddingCountdown({ date }: WeddingCountdownProps) {
   });
 
   return (
-    <Card className="bg-primary text-primary-foreground text-center">
+    <Card className="rounded-[2rem] bg-primary text-primary-foreground text-center border-2 border-border">
       <CardContent className="p-4">
         <p className="text-sm opacity-80">Faltam apenas</p>
         <div className="flex justify-center gap-4 text-3xl font-bold">

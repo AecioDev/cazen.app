@@ -26,7 +26,8 @@ export function BudgetSummaryCard({ budget, spent }: BudgetSummaryCardProps) {
   };
 
   return (
-    <Card>
+    // Ajuste 4: Adicionando o fundo 'muted'
+    <Card className="rounded-[2rem] bg-muted/80 border-none">
       <CardHeader>
         <CardTitle>Resumo do Orçamento</CardTitle>
         <CardDescription>
