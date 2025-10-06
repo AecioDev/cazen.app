@@ -13,6 +13,7 @@ export interface Vendor {
   id: string;
   name: string;
   category: string;
+  rating: number;
   contactName?: string | null;
   phone?: string | null;
   email?: string | null;

@@ -15,6 +15,7 @@ export const vendorSchema = z.object({
     .number({ invalid_type_error: "O custo deve ser um número." })
     .min(0, "O custo não pode ser um valor negativo.")
     .default(0),
+  rating: z.number().min(0).max(5).default(0),
   notes: z.string().optional(),
 });
 

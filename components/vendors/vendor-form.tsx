@@ -25,33 +25,56 @@ import { Textarea } from "@/components/ui/textarea";
 import { vendorCategories } from "@/lib/data/defaults";
 import { useWedding } from "../providers/wedding-provider";
 import { CurrencyInput } from "../ui/currency-input";
+import { StarRating } from "../ui/star-rating";
+import { Vendor } from "@/interfaces/wedding";
+import { useEffect } from "react";
 
 interface VendorFormProps {
+  initialData?: Vendor | null;
   onFinished?: () => void;
 }
 
-export function VendorForm({ onFinished }: VendorFormProps) {
-  const { createVendor, isLoadingVendors } = useWedding();
+export function VendorForm({ initialData, onFinished }: VendorFormProps) {
+  const { createVendor, updateVendor, isLoadingVendors } = useWedding();
+  const isEditing = !!initialData;
 
   const form = useForm<VendorFormData>({
     resolver: zodResolver(vendorSchema),
     defaultValues: {
-      name: "",
-      category: "",
-      contactName: "",
-      phone: "",
-      email: "",
-      cost: 0,
-      notes: "",
+      name: initialData?.name || "",
+      category: initialData?.category || "",
+      contactName: initialData?.contactName || "",
+      phone: initialData?.phone || "",
+      email: initialData?.email || "",
+      cost: initialData?.cost || 0,
+      notes: initialData?.notes || "",
+      rating: initialData?.rating || 0,
     },
   });
 
+  useEffect(() => {
+    // Reseta o formulário com os novos dados quando o `initialData` mudar
+    form.reset({
+      name: initialData?.name || "",
+      category: initialData?.category || "",
+      contactName: initialData?.contactName || "",
+      phone: initialData?.phone || "",
+      email: initialData?.email || "",
+      cost: initialData?.cost || 0,
+      notes: initialData?.notes || "",
+      rating: initialData?.rating || 0,
+    });
+  }, [initialData, form]);
+
   const onSubmit = async (data: VendorFormData) => {
-    const dataToSubmit = {
-      ...data,
-      paid: false,
-    };
-    await createVendor(dataToSubmit);
+    if (isEditing && initialData) {
+      // Modo Edição
+      await updateVendor(initialData.id, data);
+    } else {
+      // Modo Criação
+      const dataToSubmit = { ...data, paid: false };
+      await createVendor(dataToSubmit);
+    }
     form.reset();
     onFinished?.();
   };
@@ -91,6 +114,22 @@ export function VendorForm({ onFinished }: VendorFormProps) {
               <FormLabel>Nome do Fornecedor/Serviço</FormLabel>
               <FormControl>
                 <Input placeholder="Ex: Doce de Mãe Bolos" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="rating"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Possibilidade de Fechamento</FormLabel>
+              <FormControl>
+                <StarRating
+                  rating={field.value}
+                  onRatingChange={field.onChange}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -157,7 +196,11 @@ export function VendorForm({ onFinished }: VendorFormProps) {
           )}
         />
         <Button type="submit" className="w-full" disabled={isLoadingVendors}>
-          {isLoadingVendors ? "Salvando..." : "Salvar Fornecedor"}
+          {isLoadingVendors
+            ? "Salvando..."
+            : isEditing
+            ? "Salvar Alterações"
+            : "Salvar Fornecedor"}
         </Button>
       </form>
     </Form>
