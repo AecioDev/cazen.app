@@ -53,7 +53,6 @@ export function VendorForm({ initialData, onFinished }: VendorFormProps) {
   });
 
   useEffect(() => {
-    // Reseta o formulário com os novos dados quando o `initialData` mudar
     form.reset({
       name: initialData?.name || "",
       category: initialData?.category || "",
